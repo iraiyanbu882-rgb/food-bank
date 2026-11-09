@@ -11,7 +11,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test tests/operationalLedger.test.js tests/applicationStore.integration.test.js tests/geographicModel.test.js tests/networkMapGis.test.js tests/transportRoutes.test.js tests/disasterZones.test.js tests/geographicAlerts.test.js",
+    "test": "node --test tests/operationalLedger.test.js tests/applicationStore.integration.test.js tests/geographicModel.test.js tests/networkMapGis.test.js tests/transportRoutes.test.js tests/disasterZones.test.js tests/geographicAlerts.test.js tests/mapRegionCoordinates.test.js",
     "test:operational": "node --test tests/operationalLedger.test.js",
     "test:integration": "node --test tests/applicationStore.integration.test.js"
   },

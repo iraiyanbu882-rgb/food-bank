@@ -1,3 +1,6 @@
+import { REGIONS, DEMO_MAP_ORIGIN } from '../../../mock-data/incidents.mock.js';
+import { relocateMapCoordinates } from '../../../utils/relocateMapCoordinates.js';
+
 /**
  * ResQNet Demand & Beneficiaries Telemetry Data Module
  * Demonstrates strict unit separation (packets, containers 10L, kits),
@@ -441,6 +444,67 @@ export const MOCK_DEMAND_ITEMS = [
     isSimulated: true,
   },
 ];
+
+const REGIONAL_GROUP_NAMES = {
+  'Tamil Nadu': [
+    'Chennai Coastal Relief Cluster',
+    'North Chennai Community Shelter',
+    'Cuddalore Coastal Community',
+    'Chengalpattu Health Post',
+    'Tiruvallur Transit Shelter',
+    'Chennai Community Care Centre',
+  ],
+  Pondy: [
+    'Puducherry Coastal Relief Shelter',
+    'Ariyankuppam Community Cluster',
+    'Karaikal Isolated Community',
+    'Puducherry Field Clinic',
+    'Bahour Transit Shelter',
+    'Mahe Community Care Centre',
+  ],
+  Karnataka: [
+    'Bengaluru Urban Relief Cluster',
+    'Mysuru Relocation Centre',
+    'Kalaburagi Isolated Community',
+    'Belagavi Health Post',
+    'Hassan Transit Shelter',
+    'Bengaluru Community Care Centre',
+  ],
+};
+
+export function getRegionalDemandMapData(groups, demands, regionId) {
+  const region = REGIONS.find((item) => item.id === regionId);
+  if (!region) return { groups, demands, center: null };
+
+  const regionalGroups = groups.map((group, index) => ({
+    ...group,
+    name: REGIONAL_GROUP_NAMES[regionId][index] || `${region.label} Community ${index + 1}`,
+    region: region.label,
+    coordinates: relocateMapCoordinates(
+      group.coordinates,
+      DEMO_MAP_ORIGIN,
+      region.center
+    ),
+  }));
+  const groupById = new Map(regionalGroups.map((group) => [group.id, group]));
+  const regionalDemands = demands.map((demand, index) => {
+    const group = groupById.get(demand.beneficiaryGroupId);
+
+    return {
+      ...demand,
+      region: region.label,
+      location: group?.name || `${region.label} Community ${index + 1}`,
+      beneficiaryGroup: group?.name || demand.beneficiaryGroup,
+      coordinates: relocateMapCoordinates(
+        demand.coordinates,
+        DEMO_MAP_ORIGIN,
+        region.center
+      ),
+    };
+  });
+
+  return { groups: regionalGroups, demands: regionalDemands, center: region.center };
+}
 
 /**
  * Filtered helper computing KPIs and Analytics for selected region, commodity, and verification status

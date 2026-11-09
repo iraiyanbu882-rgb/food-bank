@@ -452,7 +452,12 @@ export default function CommandCenterPage() {
     const flatKpis = kpiSections.flatMap((s) => s.cards);
 
     // Map authoritative store demandRecords and live available stock to priorityDemands
-    const priorityDemands = demandRecords.map((d) => {
+    const regionDemandRecords = scenario.isRegionalDemo
+      ? demandRecords.filter(
+          (d) => d.region === selectedRegion || d.location === selectedRegion
+        )
+      : demandRecords;
+    const priorityDemands = regionDemandRecords.map((d) => {
       const unmet = Math.max(0, Number(d.quantity || 0) - Number(d.fulfilledQuantity || 0));
       const matchingAvailable = inventoryLots
         .filter((lot) => lot.commodityId === (d.commodityId || d.commodity) && lot.unit === d.unit)
@@ -472,7 +477,14 @@ export default function CommandCenterPage() {
       };
     });
 
-    return { ...scenario, kpis: flatKpis, priorityDemands };
+    return {
+      ...scenario,
+      kpis: flatKpis,
+      priorityDemands:
+        scenario.isRegionalDemo && regionDemandRecords.length === 0
+          ? scenario.priorityDemands
+          : priorityDemands,
+    };
   }, [selectedIncident, selectedCrisisType, selectedRegion, kpiSections, demandRecords, inventoryLots]);
 
   // Handle marker / row entity inspection

@@ -14,6 +14,8 @@ import { GeographicAlertPanel } from './components/GeographicAlertPanel.jsx';
 import { GEOGRAPHIC_LOCATION_TYPE } from '../../domain/geographicModel.js';
 import { normalizeRouteStatus } from '../../domain/transportRouteModel.js';
 import { applyCombinedMapFilters } from '../../domain/geographicAlertsModel.js';
+import { DEMO_MAP_ORIGIN } from '../../mock-data/incidents.mock.js';
+import { relocateMapCoordinates } from '../../utils/relocateMapCoordinates.js';
 
 export default function NetworkMapPage() {
   const { selectedIncident, selectedCrisisType, selectedRegion } = useAppStore();
@@ -130,21 +132,46 @@ export default function NetworkMapPage() {
     return data.routes;
   }, [getOperationalRoutes, data.routes, dispatchOrders, customRouteOverrides]);
 
+  const regionalGeoLocations = useMemo(
+    () =>
+      data.coordinateOrigin
+        ? relocateMapCoordinates(geoLocations, DEMO_MAP_ORIGIN, data.center)
+        : geoLocations,
+    [geoLocations, data.coordinateOrigin, data.center]
+  );
+  const regionalDisasterZones = useMemo(
+    () =>
+      data.coordinateOrigin
+        ? relocateMapCoordinates(disasterZones, DEMO_MAP_ORIGIN, data.center)
+        : disasterZones,
+    [disasterZones, data.coordinateOrigin, data.center]
+  );
+  const regionalOperationalRoutes = useMemo(() => {
+    if (!data.coordinateOrigin) return operationalRoutes;
+
+    const scenarioRouteIds = new Set(data.routes.map((route) => route.id));
+    return operationalRoutes.map((route) =>
+      scenarioRouteIds.has(route.id)
+        ? route
+        : relocateMapCoordinates(route, DEMO_MAP_ORIGIN, data.center)
+    );
+  }, [operationalRoutes, data.coordinateOrigin, data.center, data.routes]);
+
   // Stage 4.5 Combined Multi-Criteria Filter Evaluation
   const combinedFilteredData = useMemo(() => {
     return applyCombinedMapFilters(
       {
         entities: data.entities,
-        geoLocations,
-        routes: operationalRoutes,
-        disasterZones,
+        geoLocations: regionalGeoLocations,
+        routes: regionalOperationalRoutes,
+        disasterZones: regionalDisasterZones,
       },
       {
         ...filters,
         searchTerm,
       }
     );
-  }, [data.entities, geoLocations, operationalRoutes, disasterZones, filters, searchTerm]);
+  }, [data.entities, regionalGeoLocations, regionalOperationalRoutes, regionalDisasterZones, filters, searchTerm]);
 
   const filteredEntities = combinedFilteredData.filteredEntities;
   const filteredGeoLocations = combinedFilteredData.filteredGeoLocations;
@@ -156,11 +183,22 @@ export default function NetworkMapPage() {
   // Active Geographic Risk Alerts (Derived from facilities, routes, disaster zones)
   const geographicAlerts = useMemo(() => {
     try {
-      return typeof getGeographicAlerts === 'function' ? getGeographicAlerts() : [];
+      const alerts = typeof getGeographicAlerts === 'function' ? getGeographicAlerts() : [];
+      return data.coordinateOrigin
+        ? relocateMapCoordinates(alerts, DEMO_MAP_ORIGIN, data.center)
+        : alerts;
     } catch {
       return [];
     }
-  }, [getGeographicAlerts, dismissedGeographicAlertIds, geoLocations, operationalRoutes, disasterZones]);
+  }, [
+    getGeographicAlerts,
+    dismissedGeographicAlertIds,
+    regionalGeoLocations,
+    regionalOperationalRoutes,
+    regionalDisasterZones,
+    data.coordinateOrigin,
+    data.center,
+  ]);
 
   // Handle entity selection — close other drawers
   const handleSelectEntity = (entity) => {

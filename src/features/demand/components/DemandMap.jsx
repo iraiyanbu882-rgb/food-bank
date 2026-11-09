@@ -17,6 +17,7 @@ import {
 import { Card } from '../../../components/ui/Card.jsx';
 import { StatusBadge } from '../../../components/ui/StatusBadge.jsx';
 import { Button } from '../../../components/ui/Button.jsx';
+import { REGIONS } from '../../../mock-data/incidents.mock.js';
 
 /** Custom DivIcon for Beneficiary Groups */
 function createBeneficiaryIcon(group, isSelected = false) {
@@ -83,15 +84,25 @@ export function DemandMap({
   groups = [],
   demands = [],
   activeRegion = 'ALL',
+  center: regionalCenter,
   selectedGroupId,
   onSelectGroup,
   onInspectDemand,
 }) {
   const [showDensityZones, setShowDensityZones] = useState(true);
   const [showCriticalOnly, setShowCriticalOnly] = useState(false);
+  const [tileError, setTileError] = useState(false);
+  const mapTilerApiKey = import.meta.env.VITE_MAPTILER_API_KEY?.trim() || '';
 
   // Determine center based on active region
   const getMapCenterAndZoom = () => {
+    if (regionalCenter) {
+      return { center: regionalCenter, zoom: 10 };
+    }
+
+    const region = REGIONS.find((item) => item.id === activeRegion);
+    if (region) return { center: region.center, zoom: 10 };
+
     if (activeRegion === 'Buzi District') {
       return { center: [-19.820, 34.780], zoom: 12 };
     }
@@ -122,8 +133,12 @@ export function DemandMap({
     <Card
       title="Geographic Demand & Beneficiary Hotspots"
       subtitle="Spatial concentration of vulnerable populations and prioritized distress requests"
-      badge={<StatusBadge variant="teal" size="xs">GIS INTEL: SYNCED</StatusBadge>}
-      action={
+      badge={
+        <StatusBadge variant={mapTilerApiKey ? 'teal' : 'warning'} size="xs">
+          {mapTilerApiKey ? 'MAPTILER: CONFIGURED' : 'API KEY REQUIRED'}
+        </StatusBadge>
+      }
+      action={mapTilerApiKey ? (
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -149,24 +164,27 @@ export function DemandMap({
             Critical Only
           </button>
         </div>
-      }
+      ) : null}
       noPadding
     >
       <div className="relative w-full h-[400px]">
-        <MapContainer
-          center={center}
-          zoom={zoom}
-          scrollWheelZoom={false}
-          className="w-full h-full z-0"
-        >
-          <MapController center={center} zoom={zoom} />
+        {mapTilerApiKey ? (
+          <MapContainer
+            center={center}
+            zoom={zoom}
+            scrollWheelZoom={false}
+            className="w-full h-full z-0"
+          >
+            <MapController center={center} zoom={zoom} />
 
-          {/* Clean CartoDB Voyager Map Tiles */}
-          <TileLayer
-            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-            maxZoom={18}
-          />
+            <TileLayer
+              attribution='&copy; <a href="https://www.maptiler.com/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+              url={`https://api.maptiler.com/maps/streets-v4/256/{z}/{x}/{y}.png?key=${encodeURIComponent(mapTilerApiKey)}`}
+              maxZoom={18}
+              eventHandlers={{
+                tileerror: () => setTileError(true),
+              }}
+            />
 
           {/* Demand Concentration Buffer Radii (Heat zones) */}
           {showDensityZones &&
@@ -256,27 +274,59 @@ export function DemandMap({
               </Marker>
             );
           })}
-        </MapContainer>
+          </MapContainer>
+        ) : (
+          <div
+            role="alert"
+            className="flex h-full flex-col items-center justify-center gap-2 bg-brand-bg p-6 text-center"
+          >
+            <ShieldAlert className="h-8 w-8 text-status-warning" />
+            <h3 className="text-sm font-semibold text-text-primary">MapTiler API key required</h3>
+            <p className="max-w-lg text-xs text-text-secondary">
+              Add a domain-restricted key as <code>VITE_MAPTILER_API_KEY</code> in the
+              workspace-root <code>.env</code> file, then restart the frontend.
+            </p>
+            <a
+              href="https://cloud.maptiler.com/account/keys/"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs font-semibold text-teal hover:underline"
+            >
+              Get a MapTiler key
+            </a>
+          </div>
+        )}
+
+        {tileError && mapTilerApiKey && (
+          <div
+            role="alert"
+            className="absolute left-1/2 top-3 z-10 -translate-x-1/2 rounded-md border border-status-warning-border bg-white/95 px-3 py-2 text-xs text-status-warning shadow-subtle"
+          >
+            MapTiler rejected the request. Check that the key is valid and allowed for this domain.
+          </div>
+        )}
 
         {/* Tactical Map Overlay Legend */}
-        <div className="absolute bottom-3 left-3 z-10 bg-white/95 backdrop-blur-xs p-2.5 rounded-lg border border-brand-border shadow-subtle text-xs space-y-1.5">
-          <div className="font-bold text-navy-primary text-[11px] flex items-center gap-1.5">
-            <Compass className="w-3.5 h-3.5 text-teal" />
-            Demand Heat &amp; Density Legend
+        {mapTilerApiKey && (
+          <div className="absolute bottom-3 left-3 z-10 bg-white/95 backdrop-blur-xs p-2.5 rounded-lg border border-brand-border shadow-subtle text-xs space-y-1.5">
+            <div className="font-bold text-navy-primary text-[11px] flex items-center gap-1.5">
+              <Compass className="w-3.5 h-3.5 text-teal" />
+              Demand Heat &amp; Density Legend
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-text-secondary">
+              <span className="w-2.5 h-2.5 rounded-full bg-status-critical" />
+              <span>Critical Isolated Cluster (Cut-off)</span>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-text-secondary">
+              <span className="w-2.5 h-2.5 rounded-full bg-teal" />
+              <span>Accessible IDP Relocation Camp</span>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-text-secondary">
+              <span className="w-3 h-3 rounded-full border border-teal bg-teal/20" />
+              <span>Population Demand Zone Radius</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-[10px] text-text-secondary">
-            <span className="w-2.5 h-2.5 rounded-full bg-status-critical" />
-            <span>Critical Isolated Cluster (Cut-off)</span>
-          </div>
-          <div className="flex items-center gap-2 text-[10px] text-text-secondary">
-            <span className="w-2.5 h-2.5 rounded-full bg-teal" />
-            <span>Accessible IDP Relocation Camp</span>
-          </div>
-          <div className="flex items-center gap-2 text-[10px] text-text-secondary">
-            <span className="w-3 h-3 rounded-full border border-teal bg-teal/20" />
-            <span>Population Demand Zone Radius</span>
-          </div>
-        </div>
+        )}
       </div>
     </Card>
   );

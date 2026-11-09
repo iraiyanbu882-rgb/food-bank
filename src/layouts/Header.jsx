@@ -6,7 +6,6 @@ import {
   Radio,
   Clock,
   Sparkles,
-  ShieldAlert,
   ChevronDown,
   User,
 } from 'lucide-react';
@@ -25,7 +24,6 @@ const ROUTE_NAMES = {
   '/recovery': 'Recovery Simulator',
   '/dispatch': 'Dispatch & Verification',
   '/audit': 'Audit & Reports',
-  '/design-system': 'Design System Showcase',
 };
 
 export function Header() {
@@ -42,9 +40,6 @@ export function Header() {
     setSelectedRegion,
     setMobileMenuOpen,
     operatorRole,
-    isDemoMode,
-    dataMode,
-    setDataMode,
   } = useAppStore();
 
   return (
@@ -134,38 +129,13 @@ export function Header() {
         </div>
       </div>
 
-      {/* Right: Freshness, Mode Pill, Notifications, User Profile */}
+      {/* Right: Freshness, Notifications, User Profile */}
       <div className="flex items-center gap-2.5 shrink-0">
         {/* Data Freshness Indicator */}
         <div className="hidden xl:flex items-center gap-1.5 px-2 py-1 rounded bg-brand-bg border border-brand-border text-[11px] font-mono text-text-secondary">
           <span className="w-2 h-2 rounded-full bg-status-success animate-pulse" />
           <span>{lastDataFreshness}</span>
         </div>
-
-        {/* Data Mode Indicator & Quick Toggle */}
-        {isDemoMode ? (
-          <button
-            type="button"
-            onClick={() => setDataMode('live')}
-            title="Currently in Demo Mode (Synthetic Benchmark Data). Click to switch to Live API Mode."
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-bold bg-status-warning-bg text-status-warning border border-status-warning-border hover:bg-status-warning/20 transition-all cursor-pointer shadow-2xs"
-          >
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>DEMO MODE</span>
-            <span className="hidden sm:inline text-[9px] opacity-80 font-normal ml-0.5">| Switch to Live →</span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setDataMode('demo')}
-            title="Currently in Live API Mode (Direct Backend Solver). Click to switch to Demo Mode."
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-mono font-bold bg-teal-light text-teal border border-teal/40 hover:bg-teal-light/80 transition-all cursor-pointer shadow-2xs"
-          >
-            <span className="w-2 h-2 rounded-full bg-teal animate-pulse" />
-            <span>LIVE API MODE</span>
-            <span className="hidden sm:inline text-[9px] opacity-80 font-normal ml-0.5">| Switch to Demo →</span>
-          </button>
-        )}
 
         {/* Notification Centre */}
         <NotificationCenter />

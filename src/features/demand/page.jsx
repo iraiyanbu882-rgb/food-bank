@@ -23,7 +23,8 @@ import { Tabs } from '../../components/ui/Tabs.jsx';
 import { useAppStore } from '../../store/useAppStore.js';
 import { EmptyState } from '../../components/ui/EmptyState.jsx';
 
-import { getDemandModuleData } from './data/demandData.js';
+import { getDemandModuleData, getRegionalDemandMapData } from './data/demandData.js';
+import { REGIONS } from '../../mock-data/incidents.mock.js';
 
 import { DemandKpis } from './components/DemandKpis.jsx';
 import { DemandMap } from './components/DemandMap.jsx';
@@ -52,7 +53,6 @@ export default function DemandPage() {
 
 
   // Filters
-  const [localRegion, setLocalRegion] = useState('ALL');
   const [selectedCommodity, setSelectedCommodity] = useState('ALL');
   const [activeViewTab, setActiveViewTab] = useState('OVERVIEW'); // 'OVERVIEW' | 'VERIFICATION_DESK'
 
@@ -82,11 +82,6 @@ export default function DemandPage() {
   } = useMemo(() => {
     let items = [...demandList];
     let groups = [...groupList];
-
-    if (localRegion !== 'ALL') {
-      items = items.filter((d) => d.region === localRegion);
-      groups = groups.filter((g) => g.region === localRegion);
-    }
 
     if (selectedCommodity !== 'ALL') {
       items = items.filter((d) => d.commodity === selectedCommodity);
@@ -127,7 +122,7 @@ export default function DemandPage() {
     ).length;
 
     // Call base dataset for chart timelines & aggregations
-    const baseData = getDemandModuleData(localRegion, selectedCommodity);
+    const baseData = getDemandModuleData('ALL', selectedCommodity);
 
     return {
       filteredItems: items,
@@ -166,7 +161,12 @@ export default function DemandPage() {
         return a;
       }, []),
     };
-  }, [demandList, groupList, localRegion, selectedCommodity]);
+  }, [demandList, groupList, selectedCommodity]);
+
+  const regionalMapData = useMemo(
+    () => getRegionalDemandMapData(filteredGroups, filteredItems, selectedRegion),
+    [filteredGroups, filteredItems, selectedRegion]
+  );
 
   // Handle Form / Action Submissions
   const handleModalSubmit = ({ actionType, data, demand }) => {
@@ -340,18 +340,12 @@ export default function DemandPage() {
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Region Selector */}
             <Select
-              value={localRegion}
-              onChange={(val) => {
-                setLocalRegion(val);
-                if (val !== 'ALL') setSelectedRegion(val);
-              }}
-              options={[
-                { value: 'ALL', label: 'All Incident Sectors' },
-                { value: 'Buzi District', label: 'Buzi District' },
-                { value: 'Manga IDP Hub', label: 'Manga IDP Hub' },
-                { value: 'Chibabava Basin', label: 'Chibabava Basin' },
-                { value: 'Nhamatanda Corridor', label: 'Nhamatanda Corridor' },
-              ]}
+              value={selectedRegion}
+              onChange={setSelectedRegion}
+              options={REGIONS.map((region) => ({
+                value: region.id,
+                label: region.label,
+              }))}
             />
 
             {/* Action Buttons */}
@@ -425,7 +419,7 @@ export default function DemandPage() {
       {/* 3. Six Enterprise Demand KPI Cards */}
       <DemandKpis
         metrics={metrics}
-        activeRegion={localRegion}
+        activeRegion={selectedRegion}
         activeCommodity={selectedCommodity}
       />
 
@@ -449,9 +443,10 @@ export default function DemandPage() {
         <div className="space-y-6">
           {/* A. Geographic Demand Map */}
           <DemandMap
-            groups={filteredGroups}
-            demands={filteredItems}
-            activeRegion={localRegion}
+            groups={regionalMapData.groups}
+            demands={regionalMapData.demands}
+            activeRegion={selectedRegion}
+            center={regionalMapData.center}
             selectedGroupId={selectedGroupId}
             onSelectGroup={(grp) => {
               setSelectedGroupId(grp.id);
@@ -511,7 +506,7 @@ export default function DemandPage() {
                 variant="secondary"
                 onClick={() => {
                   setSelectedCommodity('ALL');
-                  setSelectedRegion('ALL');
+                  setSelectedRegion(REGIONS[0].id);
                 }}
               >
                 Reset Filters

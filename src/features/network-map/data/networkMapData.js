@@ -5,6 +5,9 @@
  * Unsupported regions return empty datasets with explicit unavailability flags.
  */
 
+import { REGIONS } from '../../../mock-data/incidents.mock.js';
+import { relocateMapCoordinates } from '../../../utils/relocateMapCoordinates.js';
+
 // ==========================================
 // SCENARIO 1: FLOOD NETWORK (Beira & Zambezia Corridors)
 // ==========================================
@@ -1317,33 +1320,37 @@ function getUnsupportedNetwork(regionName = 'Selected Region') {
  * Main Data Accessor for Network Map
  */
 export function getNetworkMapData(incident, crisisType = 'Flood', region = 'Beira & Zambezia Corridors') {
-  // 1. Check for explicitly unsupported region
   const targetRegion = region || incident?.region || '';
+  const target = REGIONS.find((item) => item.id === targetRegion);
+
   if (
-    targetRegion.toLowerCase().includes('anatolia') ||
-    targetRegion.toLowerCase().includes('unavailable') ||
-    incident?.isSupported === false
+    !target &&
+    (targetRegion.toLowerCase().includes('anatolia') ||
+      targetRegion.toLowerCase().includes('unavailable') ||
+      incident?.isSupported === false)
   ) {
     return getUnsupportedNetwork(targetRegion || 'Southeast Anatolia');
   }
 
-  // 2. Select appropriate coherent scenario
-  if (
+  const scenario =
     crisisType === 'Armed Conflict' ||
     targetRegion.includes('Middle East') ||
     incident?.code === 'ARM-SOUTH-04'
-  ) {
-    return CONFLICT_NETWORK;
-  }
+      ? CONFLICT_NETWORK
+      : crisisType === 'Pandemic' ||
+          targetRegion.includes('Horn of Africa') ||
+          incident?.code === 'PAN-CHOL-09'
+        ? PANDEMIC_NETWORK
+        : FLOOD_NETWORK;
 
-  if (
-    crisisType === 'Pandemic' ||
-    targetRegion.includes('Horn of Africa') ||
-    incident?.code === 'PAN-CHOL-09'
-  ) {
-    return PANDEMIC_NETWORK;
-  }
+  if (!target) return scenario;
 
-  // Default to Flood Scenario
-  return FLOOD_NETWORK;
+  const relocated = relocateMapCoordinates(scenario, scenario.center, target.center);
+
+  return {
+    ...relocated,
+    regionName: target.label,
+    scopeLabel: `${target.label.toUpperCase()} (SYNTHETIC DEMO DATA)`,
+    coordinateOrigin: scenario.center,
+  };
 }

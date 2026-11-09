@@ -5,6 +5,246 @@
  * with explicit detection and messaging for unsupported regions.
  */
 
+import { REGIONS } from '../../../mock-data/incidents.mock.js';
+import { relocateMapCoordinates } from '../../../utils/relocateMapCoordinates.js';
+
+const REGIONAL_COMMUNITY_NEEDS = {
+  'Tamil Nadu': [
+    {
+      id: 'TN-NEED-001',
+      region: 'North Chennai Coastal Settlements',
+      commodity: 'Emergency Food Kits',
+      requiredQty: 2400,
+      availableQty: 900,
+      unmetQty: 1500,
+      unit: 'kits',
+      priority: 'CRITICAL',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Prioritize food distribution to coastal relief centres',
+    },
+    {
+      id: 'TN-NEED-002',
+      region: 'Chennai Peri-Urban Communities',
+      commodity: 'Potable Drinking Water',
+      requiredQty: 12000,
+      availableQty: 5000,
+      unmetQty: 7000,
+      unit: 'litres',
+      priority: 'CRITICAL',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Arrange water tankers for affected neighbourhoods',
+    },
+    {
+      id: 'TN-NEED-003',
+      region: 'Coastal Primary Health Centres',
+      commodity: 'First Aid & Essential Medicine Kits',
+      requiredQty: 320,
+      availableQty: 210,
+      unmetQty: 110,
+      unit: 'kits',
+      priority: 'HIGH',
+      verificationStatus: 'PENDING_RECON',
+      actionNeeded: 'Verify clinic stock and dispatch medical kits',
+    },
+    {
+      id: 'TN-NEED-004',
+      region: 'Ennore Fishing Harbour Communities',
+      commodity: 'Family Food Parcels',
+      requiredQty: 1800,
+      availableQty: 650,
+      unmetQty: 1150,
+      unit: 'parcels',
+      priority: 'HIGH',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Stage family food parcels at the harbour relief point',
+    },
+    {
+      id: 'TN-NEED-005',
+      region: 'Mahabalipuram Temporary Shelters',
+      commodity: 'Emergency Shelter Tarpaulins',
+      requiredQty: 540,
+      availableQty: 180,
+      unmetQty: 360,
+      unit: 'sheets',
+      priority: 'HIGH',
+      verificationStatus: 'PENDING_RECON',
+      actionNeeded: 'Confirm shelter capacity and deliver tarpaulins',
+    },
+    {
+      id: 'TN-NEED-006',
+      region: 'Thiruvallur Community Health Posts',
+      commodity: 'Essential Medicine Kits',
+      requiredQty: 260,
+      availableQty: 150,
+      unmetQty: 110,
+      unit: 'kits',
+      priority: 'HIGH',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Replenish essential medicines at community health posts',
+    },
+    {
+      id: 'TN-NEED-007',
+      region: 'Cuddalore Coastal Relief Centres',
+      commodity: 'Hygiene Supply Kits',
+      requiredQty: 950,
+      availableQty: 400,
+      unmetQty: 550,
+      unit: 'kits',
+      priority: 'MEDIUM',
+      verificationStatus: 'PENDING_RECON',
+      actionNeeded: 'Verify household counts before dispatching hygiene kits',
+    },
+  ],
+  Pondy: [
+    {
+      id: 'PONDY-NEED-001',
+      region: 'Puducherry Coastal Relief Shelters',
+      commodity: 'Emergency Food Kits',
+      requiredQty: 1100,
+      availableQty: 420,
+      unmetQty: 680,
+      unit: 'kits',
+      priority: 'CRITICAL',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Deliver food kits to coastal relief shelters',
+    },
+    {
+      id: 'PONDY-NEED-002',
+      region: 'Ariyankuppam & Riverbank Communities',
+      commodity: 'Potable Drinking Water',
+      requiredQty: 6400,
+      availableQty: 2400,
+      unmetQty: 4000,
+      unit: 'litres',
+      priority: 'CRITICAL',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Dispatch safe drinking water to riverbank communities',
+    },
+    {
+      id: 'PONDY-NEED-003',
+      region: 'Rural Health Centres',
+      commodity: 'First Aid & Essential Medicine Kits',
+      requiredQty: 140,
+      availableQty: 95,
+      unmetQty: 45,
+      unit: 'kits',
+      priority: 'HIGH',
+      verificationStatus: 'PENDING_RECON',
+      actionNeeded: 'Confirm clinic requirements and replenish medicine kits',
+    },
+    {
+      id: 'PONDY-NEED-004',
+      region: 'Karaikal Coastal Relief Shelters',
+      commodity: 'Family Food Parcels',
+      requiredQty: 720,
+      availableQty: 280,
+      unmetQty: 440,
+      unit: 'parcels',
+      priority: 'HIGH',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Deliver food parcels to Karaikal relief shelters',
+    },
+    {
+      id: 'PONDY-NEED-005',
+      region: 'Bahour Low-Lying Communities',
+      commodity: 'Emergency Shelter Tarpaulins',
+      requiredQty: 210,
+      availableQty: 80,
+      unmetQty: 130,
+      unit: 'sheets',
+      priority: 'HIGH',
+      verificationStatus: 'PENDING_RECON',
+      actionNeeded: 'Assess shelter damage and distribute tarpaulins',
+    },
+    {
+      id: 'PONDY-NEED-006',
+      region: 'Mahe Community Relief Point',
+      commodity: 'Hygiene Supply Kits',
+      requiredQty: 320,
+      availableQty: 140,
+      unmetQty: 180,
+      unit: 'kits',
+      priority: 'MEDIUM',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Replenish hygiene supplies at the community relief point',
+    },
+  ],
+  Karnataka: [
+    {
+      id: 'KA-NEED-001',
+      region: 'Bengaluru Urban Relief Centres',
+      commodity: 'Emergency Food Kits',
+      requiredQty: 3600,
+      availableQty: 1500,
+      unmetQty: 2100,
+      unit: 'kits',
+      priority: 'CRITICAL',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Allocate food kits to urban relief centres',
+    },
+    {
+      id: 'KA-NEED-002',
+      region: 'Bengaluru Peri-Urban Communities',
+      commodity: 'Potable Drinking Water',
+      requiredQty: 18000,
+      availableQty: 7600,
+      unmetQty: 10400,
+      unit: 'litres',
+      priority: 'CRITICAL',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Coordinate water delivery to peri-urban communities',
+    },
+    {
+      id: 'KA-NEED-003',
+      region: 'District Health Centres',
+      commodity: 'First Aid & Essential Medicine Kits',
+      requiredQty: 460,
+      availableQty: 300,
+      unmetQty: 160,
+      unit: 'kits',
+      priority: 'HIGH',
+      verificationStatus: 'PENDING_RECON',
+      actionNeeded: 'Validate district health-centre inventory and replenish',
+    },
+    {
+      id: 'KA-NEED-004',
+      region: 'Mysuru Urban Relief Centres',
+      commodity: 'Emergency Food Kits',
+      requiredQty: 2100,
+      availableQty: 850,
+      unmetQty: 1250,
+      unit: 'kits',
+      priority: 'HIGH',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Allocate food kits to Mysuru relief centres',
+    },
+    {
+      id: 'KA-NEED-005',
+      region: 'Kalaburagi Rural Settlements',
+      commodity: 'Potable Drinking Water',
+      requiredQty: 9600,
+      availableQty: 3800,
+      unmetQty: 5800,
+      unit: 'litres',
+      priority: 'CRITICAL',
+      verificationStatus: 'PENDING_RECON',
+      actionNeeded: 'Validate water requirements and arrange tanker deliveries',
+    },
+    {
+      id: 'KA-NEED-006',
+      region: 'Belagavi Community Health Centres',
+      commodity: 'Essential Medicine Kits',
+      requiredQty: 240,
+      availableQty: 155,
+      unmetQty: 85,
+      unit: 'kits',
+      priority: 'HIGH',
+      verificationStatus: 'VERIFIED',
+      actionNeeded: 'Dispatch essential medicines to community health centres',
+    },
+  ],
+};
+
 // ==========================================
 // SCENARIO 1: FLOOD SCENARIO (Beira & Zambezia Corridors)
 // ==========================================
@@ -1320,33 +1560,46 @@ function getUnsupportedScenario(regionName = 'Selected Region') {
  * Main Data Accessor for Command Centre
  */
 export function getCommandCenterData(incident, crisisType, region) {
-  // 1. Check for explicitly unsupported region
   const targetRegion = region || incident?.region || '';
+  const target = REGIONS.find((item) => item.id === targetRegion);
+
   if (
-    targetRegion.toLowerCase().includes('anatolia') ||
-    targetRegion.toLowerCase().includes('unavailable') ||
-    incident?.isSupported === false
+    !target &&
+    (targetRegion.toLowerCase().includes('anatolia') ||
+      targetRegion.toLowerCase().includes('unavailable') ||
+      incident?.isSupported === false)
   ) {
     return getUnsupportedScenario(targetRegion || 'Southeast Anatolia');
   }
 
-  // 2. Select appropriate coherent scenario
-  if (
+  const scenario =
     crisisType === 'Armed Conflict' ||
     targetRegion.includes('Middle East') ||
     incident?.code === 'ARM-SOUTH-04'
-  ) {
-    return CONFLICT_SCENARIO;
-  }
+      ? CONFLICT_SCENARIO
+      : crisisType === 'Pandemic' ||
+          targetRegion.includes('Horn of Africa') ||
+          incident?.code === 'PAN-CHOL-09'
+        ? PANDEMIC_SCENARIO
+        : FLOOD_SCENARIO;
 
-  if (
-    crisisType === 'Pandemic' ||
-    targetRegion.includes('Horn of Africa') ||
-    incident?.code === 'PAN-CHOL-09'
-  ) {
-    return PANDEMIC_SCENARIO;
-  }
+  if (!target) return scenario;
 
-  // Default to Flood Scenario
-  return FLOOD_SCENARIO;
+  const mapEntities = relocateMapCoordinates(
+    scenario.mapEntities,
+    scenario.mapEntities.center,
+    target.center
+  );
+
+  return {
+    ...scenario,
+    regionName: target.label,
+    scopeLabel: `${target.label.toUpperCase()} (SYNTHETIC DEMO DATA)`,
+    isRegionalDemo: true,
+    priorityDemands: REGIONAL_COMMUNITY_NEEDS[target.id],
+    mapEntities: {
+      ...mapEntities,
+      scopeLabel: `${target.label.toUpperCase()} (SYNTHETIC DEMO DATA)`,
+    },
+  };
 }

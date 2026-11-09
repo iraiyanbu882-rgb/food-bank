@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { DEMO_CONFIG } from '../mock-data/config.js';
-import { MOCK_INCIDENTS, CRISIS_TYPES, REGIONS } from '../mock-data/incidents.mock.js';
+import {
+  MOCK_INCIDENTS,
+  CRISIS_TYPES,
+  REGIONS,
+  DEFAULT_REGION_INCIDENT,
+} from '../mock-data/incidents.mock.js';
 import { createOperationalState } from '../domain/createOperationalState.js';
 import { reserveStock, dispatchStock, verifyReceipt, lotBalances } from '../domain/operationalLedger.js';
 import {
@@ -45,9 +50,9 @@ export const useAppStore = create((set, get) => ({
   dispatchOperationalStock: (args) => { const result = dispatchStock(get(), args); if (result.ok) set(result.value); return result; },
   verifyOperationalReceipt: (args) => { const result = verifyReceipt(get(), args); if (result.ok) set(result.value); return result; },
   // Active Operational Context (Persists across navigation)
-  selectedIncident: MOCK_INCIDENTS[0],
-  selectedCrisisType: MOCK_INCIDENTS[0].crisisType,
-  selectedRegion: MOCK_INCIDENTS[0].region,
+  selectedIncident: DEFAULT_REGION_INCIDENT,
+  selectedCrisisType: DEFAULT_REGION_INCIDENT.crisisType,
+  selectedRegion: REGIONS[0].id,
   reportingPeriod: 'today',
   dataMode: DEMO_CONFIG.isDemoMode ? 'demo' : 'live',
   isDemoMode: DEMO_CONFIG.isDemoMode,
@@ -128,6 +133,26 @@ export const useAppStore = create((set, get) => ({
   },
 
   setSelectedRegion: (region) => {
+    const regionConfig = REGIONS.find((item) => item.id === region);
+    if (regionConfig) {
+      const crisisType = get().selectedCrisisType;
+      set({
+        selectedRegion: region,
+        selectedIncident: {
+          id: `REGION-${region.toUpperCase().replace(/\s+/g, '-')}`,
+          code: 'LOCAL-DEMO',
+          name: `${region} Humanitarian Response`,
+          region,
+          crisisType,
+          center: regionConfig.center,
+          zoom: 11,
+          isSimulated: true,
+          isSupported: true,
+        },
+      });
+      return;
+    }
+
     const matchingIncident = MOCK_INCIDENTS.find((inc) => inc.region === region);
     if (matchingIncident) {
       set({

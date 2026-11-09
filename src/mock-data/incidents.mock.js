@@ -7,11 +7,24 @@ export const CRISIS_TYPES = [
 ];
 
 export const REGIONS = [
-  { id: 'Beira & Zambezia Corridors', label: 'Beira & Zambezia Corridors', isSupported: true, crisisType: 'Flood' },
-  { id: 'Middle East / South Corridor', label: 'Middle East / South Corridor', isSupported: true, crisisType: 'Armed Conflict' },
-  { id: 'Horn of Africa / Lake Basin', label: 'Horn of Africa / Lake Basin', isSupported: true, crisisType: 'Pandemic' },
-  { id: 'Southeast Anatolia', label: 'Southeast Anatolia (Data Unavailable)', isSupported: false },
+  { id: 'Tamil Nadu', label: 'Tamil Nadu', isSupported: true, center: [13.0827, 80.2707] },
+  { id: 'Pondy', label: 'Pondy', isSupported: true, center: [11.9416, 79.8083] },
+  { id: 'Karnataka', label: 'Karnataka', isSupported: true, center: [12.9716, 77.5946] },
 ];
+
+export const DEMO_MAP_ORIGIN = [-19.825, 34.860];
+
+export const DEFAULT_REGION_INCIDENT = {
+  id: 'REGION-TAMIL-NADU',
+  code: 'LOCAL-DEMO',
+  name: 'Tamil Nadu Humanitarian Response',
+  region: REGIONS[0].id,
+  crisisType: 'Flood',
+  center: REGIONS[0].center,
+  zoom: 11,
+  isSimulated: true,
+  isSupported: true,
+};
 
 export const MOCK_INCIDENTS = [
   {

@@ -12,7 +12,6 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
   X,
 } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore.js';
@@ -136,31 +135,6 @@ export function Sidebar({ isMobile = false }) {
           );
         })}
 
-        {/* Phase 1 Design Showcase Shortcut */}
-        <div className="pt-2 border-t border-navy-secondary/60 mt-2">
-          <NavLink
-            to="/design-system"
-            onClick={() => isMobile && setMobileMenuOpen(false)}
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2 rounded-md text-xs font-medium transition-all group ${
-                isActive
-                  ? 'bg-teal/30 text-teal-light border border-teal/40'
-                  : 'text-teal-light/75 hover:text-white hover:bg-navy-secondary'
-              }`
-            }
-            title={isCollapsed ? 'Design System' : undefined}
-          >
-            <Sparkles className="w-4 h-4 shrink-0 text-teal" />
-            {!isCollapsed && (
-              <div className="flex items-center justify-between flex-1 truncate">
-                <span className="truncate">Design Showcase</span>
-                <span className="text-[9px] font-mono px-1 py-0.2 bg-teal/30 text-teal-light rounded">
-                  P1
-                </span>
-              </div>
-            )}
-          </NavLink>
-        </div>
       </nav>
 
       {/* Footer Controls: Settings, User Profile, Collapse */}

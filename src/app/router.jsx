@@ -9,7 +9,6 @@ import { AllocationPage } from '../features/allocation/index.js';
 import { RecoveryPage } from '../features/recovery/index.js';
 import { DispatchPage } from '../features/dispatch/index.js';
 import { AuditPage } from '../features/audit/index.js';
-import { DesignSystemShowcase } from '../features/design-system/index.js';
 
 export const router = createBrowserRouter([
   {
@@ -51,10 +50,6 @@ export const router = createBrowserRouter([
       {
         path: 'audit',
         element: <AuditPage />,
-      },
-      {
-        path: 'design-system',
-        element: <DesignSystemShowcase />,
       },
       {
         path: '*',

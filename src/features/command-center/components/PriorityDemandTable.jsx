@@ -25,7 +25,10 @@ export function PriorityDemandTable({
           categoryFilter === 'ALL' ||
           (categoryFilter === 'FOOD' && item.commodity.toLowerCase().includes('food')) ||
           (categoryFilter === 'WATER' && item.commodity.toLowerCase().includes('water')) ||
-          (categoryFilter === 'MEDICAL' && (item.commodity.toLowerCase().includes('cholera') || item.commodity.toLowerCase().includes('trauma'))) ||
+          (categoryFilter === 'MEDICAL' &&
+            ['cholera', 'trauma', 'medical', 'medicine', 'first aid'].some((term) =>
+              item.commodity.toLowerCase().includes(term)
+            )) ||
           (categoryFilter === 'SHELTER' && item.commodity.toLowerCase().includes('shelter'));
 
         const matchesSearch =
