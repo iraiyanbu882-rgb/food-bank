@@ -169,9 +169,11 @@ export function CrisisMap({
             <span className="font-bold text-status-warning">{communities?.length || 0} Cut-Off Zones</span> •{' '}
             <span className="font-bold text-status-critical">{disruptions?.length || 0} Impasses</span>
           </span>
-          <StatusBadge variant={isSupported ? "critical" : "neutral"} size="xs" pulse={isSupported}>
-            {isSupported ? 'SYNTHETIC DEMO DATA' : 'DATA UNAVAILABLE'}
-          </StatusBadge>
+          {!isSupported && (
+            <StatusBadge variant="neutral" size="xs">
+              DATA UNAVAILABLE
+            </StatusBadge>
+          )}
         </div>
 
         {/* Right: Layer Toggle Bar */}

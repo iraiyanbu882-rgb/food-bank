@@ -712,11 +712,6 @@ export default function CommandCenterPage() {
       <section className="space-y-2">
         <SectionHeader
           title="Tactical Status & Decision Radar"
-          badge={
-            <StatusBadge variant="navy" size="xs">
-              SCENARIO / SYNTHETIC
-            </StatusBadge>
-          }
           compact
         />
 
@@ -732,11 +727,6 @@ export default function CommandCenterPage() {
       <section className="space-y-2">
         <SectionHeader
           title="Resource & Demand Analytics"
-          badge={
-            <StatusBadge variant="teal" size="xs">
-              SCENARIO / SYNTHETIC
-            </StatusBadge>
-          }
           compact
         />
 
@@ -751,11 +741,6 @@ export default function CommandCenterPage() {
       <section className="space-y-2">
         <SectionHeader
           title="Critical Community Needs & Deficits"
-          badge={
-            <StatusBadge variant="critical" size="xs">
-              SCENARIO / SYNTHETIC
-            </StatusBadge>
-          }
           compact
         />
 

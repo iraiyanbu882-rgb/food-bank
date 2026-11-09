@@ -3,7 +3,6 @@ import { Outlet } from 'react-router-dom';
 import { Header } from './Header.jsx';
 import { Sidebar } from './Sidebar.jsx';
 import { AlertBanner } from './AlertBanner.jsx';
-import { SettingsModal } from './SettingsModal.jsx';
 import { InspectorDrawer } from '../components/drawers/InspectorDrawer.jsx';
 import { ErrorBoundary } from '../components/ui/ErrorBoundary.jsx';
 import { useAppStore } from '../store/useAppStore.js';
@@ -50,9 +49,6 @@ export function RootLayout() {
           </div>
         </main>
       </div>
-
-      {/* Settings Modal */}
-      <SettingsModal />
 
       {/* Persistent Inspection Drawer Container */}
       <InspectorDrawer />

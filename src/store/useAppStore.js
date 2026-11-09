@@ -62,7 +62,6 @@ export const useAppStore = create((set, get) => ({
   // Navigation & Layout UI State
   sidebarCollapsed: false,
   mobileMenuOpen: false,
-  isSettingsOpen: false,
   
   // Inspector Drawer State
   activeDrawer: {
@@ -183,8 +182,6 @@ export const useAppStore = create((set, get) => ({
   toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
   setMobileMenuOpen: (open) => set({ mobileMenuOpen: open }),
-  setIsSettingsOpen: (open) => set({ isSettingsOpen: open }),
-  
   openDrawer: (type, payload) => set({
     activeDrawer: { isOpen: true, type, payload },
   }),

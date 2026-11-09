@@ -1,6 +1,6 @@
 /**
  * ResQNet Geographical Intelligence & Network Map Simulated Telemetry
- * All data explicitly labeled as SYNTHETIC DEMO DATA.
+ * The datasets below are simulated demonstration data.
  * Dynamically switches between Flood, Armed Conflict, and Pandemic scenarios.
  * Unsupported regions return empty datasets with explicit unavailability flags.
  */
@@ -1350,7 +1350,7 @@ export function getNetworkMapData(incident, crisisType = 'Flood', region = 'Beir
   return {
     ...relocated,
     regionName: target.label,
-    scopeLabel: `${target.label.toUpperCase()} (SYNTHETIC DEMO DATA)`,
+    scopeLabel: target.label.toUpperCase(),
     coordinateOrigin: scenario.center,
   };
 }

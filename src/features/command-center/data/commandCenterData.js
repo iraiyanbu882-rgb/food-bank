@@ -1,6 +1,6 @@
 /**
  * ResQNet Command Centre Scenario-Coherent Telemetry
- * All datasets explicitly labeled as SYNTHETIC DEMO DATA.
+ * The datasets below are simulated demonstration data.
  * Dynamically switches between Flood, Armed Conflict, and Pandemic scenarios,
  * with explicit detection and messaging for unsupported regions.
  */
@@ -1594,12 +1594,12 @@ export function getCommandCenterData(incident, crisisType, region) {
   return {
     ...scenario,
     regionName: target.label,
-    scopeLabel: `${target.label.toUpperCase()} (SYNTHETIC DEMO DATA)`,
+    scopeLabel: target.label.toUpperCase(),
     isRegionalDemo: true,
     priorityDemands: REGIONAL_COMMUNITY_NEEDS[target.id],
     mapEntities: {
       ...mapEntities,
-      scopeLabel: `${target.label.toUpperCase()} (SYNTHETIC DEMO DATA)`,
+      scopeLabel: target.label.toUpperCase(),
     },
   };
 }

@@ -34,7 +34,6 @@ export function Header() {
     selectedIncident,
     selectedCrisisType,
     selectedRegion,
-    lastDataFreshness,
     setSelectedIncident,
     setSelectedCrisisType,
     setSelectedRegion,
@@ -129,14 +128,8 @@ export function Header() {
         </div>
       </div>
 
-      {/* Right: Freshness, Notifications, User Profile */}
+      {/* Right: Notifications, User Profile */}
       <div className="flex items-center gap-2.5 shrink-0">
-        {/* Data Freshness Indicator */}
-        <div className="hidden xl:flex items-center gap-1.5 px-2 py-1 rounded bg-brand-bg border border-brand-border text-[11px] font-mono text-text-secondary">
-          <span className="w-2 h-2 rounded-full bg-status-success animate-pulse" />
-          <span>{lastDataFreshness}</span>
-        </div>
-
         {/* Notification Centre */}
         <NotificationCenter />
 

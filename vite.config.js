@@ -5,11 +5,15 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const envDir =
+  path.basename(__dirname).toLowerCase() === 'frontend'
+    ? path.resolve(__dirname, '..')
+    : __dirname;
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  envDir: path.resolve(__dirname, '..'),
+  envDir,
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
